@@ -1,5 +1,6 @@
+
 "use client";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -20,7 +21,18 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // NextAuth login will be handled by the form submission
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+      role,
+    });
+    setLoading(false);
+    if (res?.ok) {
+      router.push("/");
+    } else {
+      // Optionally show an error message
+    }
   };
 
   const demoLogins = [

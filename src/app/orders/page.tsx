@@ -25,6 +25,24 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Download invoice handler
+  const handleDownloadInvoice = async (orderId: string) => {
+    const res = await fetch(`/api/invoice?id=${orderId}`);
+    if (!res.ok) {
+      alert("Failed to download invoice");
+      return;
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice-${orderId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     if (!session?.user) {
       return;
@@ -151,14 +169,12 @@ export default function OrdersPage() {
                   </p>
 
                   <div className="mt-4 md:mt-0 flex gap-3">
-                    <a
-                      href={`/api/invoice?id=${order.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDownloadInvoice(order.id)}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition"
                     >
                       📄 Download Invoice
-                    </a>
+                    </button>
 
                     <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-lg font-semibold transition">
                       Track Order
